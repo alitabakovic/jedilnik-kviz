@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7-dnevni jedilnik — Personaliziran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#0D0D0D;
+  --dark:#1A1A1A;
+  --card:#F5F5F5;
+  --ink:#1C1C1C;
+  --red:#E63329;
+  --red-dark:#C0251C;
+  --red-lt:#FEF2F2;
+  --white:#FFFFFF;
+  --gray:#888888;
+  --gray-lt:#F0F0F0;
+  --border:#E0E0E0;
+  --green:#1A7A4A;
+  --green-lt:#EDFAF3;
+  --orange:#D4700A;
+  --orange-lt:#FFF8EE;
+  --radius:4px;
+  --radius-lg:8px;
+}
+html,body{font-family:'Archivo',sans-serif;background:var(--white);color:var(--ink);font-size:15px;line-height:1.5}
+#app{max-width:440px;margin:0 auto;min-height:100vh}
+
+/* ── HERO HEADER STRIP ── */
+.top-bar{background:var(--black);padding:.6rem 1.2rem;display:flex;align-items:center;gap:8px}
+.top-bar-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.1rem;
+  color:var(--white);letter-spacing:.03em;text-transform:uppercase}
+.top-bar-tag{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.75rem;
+  color:var(--red);letter-spacing:.12em;text-transform:uppercase;margin-left:auto}
+
+/* ── PROGRESS ── */
+.prog-wrap{padding:.9rem 1.2rem .4rem;background:var(--white)}
+.prog-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.prog-step{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--gray)}
+.prog-pct{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;color:var(--red)}
+.prog-track{height:3px;background:var(--border);border-radius:0}
+.prog-fill{height:100%;background:var(--red);transition:width .4s ease}
+
+/* ── STEP CONTAINER ── */
+.step-wrap{padding:1.2rem 1.2rem 2rem;animation:fadeUp .28s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── QUESTION HEADER ── */
+.q-tag{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.7rem;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:.3rem}
+.q-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:2rem;
+  line-height:1.05;text-transform:uppercase;color:var(--black);margin-bottom:.4rem;letter-spacing:-.01em}
+.q-hint{font-size:13px;color:var(--gray);margin-bottom:1.4rem;line-height:1.5}
+
+/* ── OPTIONS ── */
+.options{display:grid;gap:8px;margin-bottom:1.3rem}
+.opt{display:flex;align-items:center;gap:0;border:2px solid var(--border);
+  background:var(--white);cursor:pointer;transition:.15s;width:100%;text-align:left;
+  border-radius:var(--radius);overflow:hidden}
+.opt:hover{border-color:var(--black)}
+.opt.sel{border-color:var(--red);background:var(--red)}
+.opt-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;
+  color:var(--gray);padding:.75rem .9rem;min-width:44px;text-align:center;
+  border-right:2px solid var(--border);background:var(--gray-lt);transition:.15s}
+.opt.sel .opt-num{color:var(--white);background:var(--red-dark);border-color:var(--red-dark)}
+.opt:hover:not(.sel) .opt-num{color:var(--black);background:var(--border)}
+.opt-text{font-family:'Archivo',sans-serif;font-weight:600;font-size:13.5px;
+  color:var(--ink);padding:.75rem 1rem;transition:.15s;line-height:1.3}
+.opt.sel .opt-text{color:var(--white)}
+
+/* ── SLIDER ── */
+.slider-block{margin-bottom:1.4rem}
+.slider-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.7rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--gray);margin-bottom:.4rem}
+.slider-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:3rem;
+  color:var(--black);line-height:1;margin-bottom:.5rem}
+.slider-val em{font-size:1.2rem;color:var(--gray);font-style:normal;font-weight:700}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);
+  outline:none;cursor:pointer;border-radius:0;accent-color:var(--red)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;
+  background:var(--red);cursor:pointer;border-radius:0;border:3px solid var(--black)}
+.slider-ends{display:flex;justify-content:space-between;font-size:10px;
+  color:var(--gray);margin-top:.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.05em}
+
+/* ── FIELDS ── */
+.field{margin-bottom:1.1rem}
+.field label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.7rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--black);display:block;margin-bottom:.4rem}
+.field input{width:100%;padding:12px 14px;border:2px solid var(--border);
+  font-family:'Archivo',sans-serif;font-size:14px;outline:none;transition:.15s;
+  background:var(--white);color:var(--ink);border-radius:var(--radius)}
+.field input:focus{border-color:var(--black)}
+
+/* ── BUTTONS ── */
+.btn{width:100%;padding:14px;border:none;font-family:'Barlow Condensed',sans-serif;
+  font-weight:800;font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;transition:.15s;border-radius:var(--radius)}
+.btn-primary{background:var(--red);color:var(--white)}
+.btn-primary:hover{background:var(--red-dark)}
+.btn-primary:active{transform:scale(.98)}
+.btn-ghost{background:transparent;border:2px solid var(--border);color:var(--gray);margin-top:8px}
+.btn-ghost:hover{border-color:var(--black);color:var(--black)}
+.btn-dark{background:var(--black);color:var(--white);margin-top:8px}
+.btn-dark:hover{background:#333}
+.back{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.8rem;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--gray);cursor:pointer;
+  display:inline-block;margin-top:.7rem}
+.back:hover{color:var(--black)}
+
+/* ── MACROS STRIP ── */
+.macro-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  border:2px solid var(--black);margin-bottom:1rem}
+.macro-cell{padding:.7rem .5rem;text-align:center;border-right:2px solid var(--black)}
+.macro-cell:last-child{border-right:none}
+.macro-cell:first-child{background:var(--black)}
+.macro-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;
+  color:var(--black);line-height:1}
+.macro-cell:first-child .macro-val{color:var(--red);font-size:1.5rem}
+.macro-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.65rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gray);margin-top:2px}
+.macro-cell:first-child .macro-lbl{color:var(--white);opacity:.7}
+
+/* ── WEEK STRIP ── */
+.week-nav{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:1rem}
+.wday{border:2px solid var(--border);padding:.5rem .2rem;text-align:center;cursor:pointer;transition:.15s;border-radius:var(--radius)}
+.wday:hover{border-color:var(--black)}
+.wday.active{background:var(--black);border-color:var(--black)}
+.wday-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.7rem;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--gray)}
+.wday.active .wday-name{color:var(--red)}
+.wday-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.1rem;color:var(--black);line-height:1.1}
+.wday.active .wday-num{color:var(--white)}
+
+/* ── DAY CARD ── */
+.day-card{border:2px solid var(--black);border-radius:var(--radius);overflow:hidden;margin-bottom:.9rem}
+.day-card-head{background:var(--black);padding:.8rem 1rem;display:flex;justify-content:space-between;align-items:center}
+.day-card-head h3{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.3rem;
+  text-transform:uppercase;letter-spacing:.04em;color:var(--white)}
+.day-badge{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.7rem;
+  letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px}
+.day-badge.train{background:var(--red);color:var(--white)}
+.day-badge.rest{background:#333;color:#aaa}
+
+/* ── MEAL ROWS ── */
+.meal-block{border-bottom:1.5px solid var(--border)}
+.meal-block:last-child{border:none}
+.meal-block-head{display:flex;align-items:center;gap:8px;padding:.55rem 1rem;background:var(--gray-lt)}
+.meal-block-head.snack-h{background:var(--orange-lt)}
+.meal-type-tag{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.75rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--black)}
+.meal-type-tag.is-snack{color:var(--orange)}
+.meal-icon{font-size:14px}
+.meal-items{padding:.55rem 1rem}
+.meal-row{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:.3rem 0;border-bottom:1px solid #F5F5F5;gap:8px}
+.meal-row:last-child{border:none}
+.meal-food{font-size:12.5px;color:var(--ink);line-height:1.4;flex:1}
+.meal-kcal{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.75rem;
+  color:var(--gray);white-space:nowrap;padding-top:2px;letter-spacing:.03em}
+
+/* ── TIPS ── */
+.tip{padding:.75rem 1rem;font-size:12.5px;line-height:1.5;margin-bottom:.7rem;border-radius:var(--radius)}
+.tip-red{background:var(--red-lt);border-left:4px solid var(--red);color:#7F1D1D}
+.tip-green{background:var(--green-lt);border-left:4px solid var(--green);color:#14532D}
+.tip-gray{background:var(--gray-lt);border-left:4px solid var(--black);color:var(--ink)}
+
+/* ── EMAIL BOX ── */
+.sent-box{border:2px solid var(--green);background:var(--green-lt);
+  padding:1rem;text-align:center;margin-bottom:.9rem;border-radius:var(--radius)}
+.sent-box .sent-icon{font-size:1.8rem;margin-bottom:.3rem}
+.sent-box h3{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.3rem;
+  text-transform:uppercase;letter-spacing:.04em;color:var(--green);margin-bottom:.2rem}
+.sent-box p{font-size:12px;color:var(--green)}
+
+/* ── SPINNER ── */
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--red);
+  border-radius:50%;animation:spin 1s linear infinite;margin:1.2rem auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── SECTION LABEL ── */
+.section-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.7rem;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gray);margin:.9rem 0 .45rem}
+
+/* ── HERO PAGE ── */
+.hero-head{background:var(--black);padding:2rem 1.2rem 1.5rem}
+.hero-eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.75rem;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:.5rem}
+.hero-h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:2.8rem;
+  line-height:.95;text-transform:uppercase;color:var(--white);letter-spacing:-.01em;margin-bottom:.8rem}
+.hero-h1 span{color:var(--red)}
+.hero-sub{font-family:'Archivo',sans-serif;font-size:13px;color:#AAAAAA;line-height:1.6}
+.hero-body{padding:1.2rem}
+.check-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:.6rem}
+.check-sq{width:20px;height:20px;background:var(--red);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;border-radius:2px;margin-top:1px}
+.check-sq svg{display:block}
+.check-text{font-size:13px;color:var(--ink);line-height:1.4}
+
+/* ── PREV/NEXT ── */
+.day-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.8rem}
+.day-nav button{padding:10px;font-family:'Barlow Condensed',sans-serif;font-weight:800;
+  font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--radius);cursor:pointer;border:2px solid var(--border);background:var(--white);color:var(--gray);transition:.15s}
+.day-nav button:hover:not(:disabled){border-color:var(--black);color:var(--black)}
+.day-nav button:disabled{opacity:.3;cursor:not-allowed}
+.day-nav button.next-btn{background:var(--black);border-color:var(--black);color:var(--white)}
+.day-nav button.next-btn:hover:not(:disabled){background:#333;border-color:#333}
+
+/* ── ACCORDION ── */
+.accordion{display:flex;flex-direction:column;gap:0;margin-bottom:1rem;border:2px solid var(--black);border-radius:var(--radius);overflow:hidden}
+.acc-item{border-bottom:1.5px solid var(--border)}
+.acc-item:last-child{border-bottom:none}
+.acc-item.open>.acc-head{background:var(--black)}
+.acc-head{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;cursor:pointer;transition:.15s;background:var(--white)}
+.acc-head:hover{background:var(--gray-lt)}
+.acc-item.open>.acc-head:hover{background:#1a1a1a}
+.acc-left{display:flex;align-items:center;gap:.6rem}
+.acc-daynum{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1rem;letter-spacing:.04em;text-transform:uppercase;color:var(--black)}
+.acc-item.open .acc-daynum{color:var(--white)}
+.acc-dayname{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)}
+.acc-item.open .acc-dayname{color:#aaa}
+.acc-arrow{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.75rem;color:var(--gray)}
+.acc-item.open .acc-arrow{color:var(--red)}
+.acc-body{background:var(--white)}
+
+</style>
+</head>
+<body>
+<div id="app"><div id="root"></div></div>
+<script>
+const DAYS=['Pon','Tor','Sre','Čet','Pet','Sob','Ned'];
+const TOTAL_Q=6;
+
+let S={
+  step:0,
+  izkusnje:null,cilj:null,teza:80,visina:178,treningi:null,
+  email:'',ime:'',jedilnik:null,sending:false,sent:false,activeDay:0
+};
+
+const QS=[
+  {id:'izkusnje',tag:'Izkušnje',q:'Koliko časa\nže treniraš?',hint:'Določa tvoj kalorični protokol in intenzivnost programa.',
+   opts:[{v:'zacetnik',l:'Manj kot 6 mesecev'},
+         {v:'vmesni',  l:'6 mesecev – 2 leti'},
+         {v:'izkusen', l:'2+ let — izkušen lifter'}]},
+  {id:'cilj',tag:'Cilj',q:'Kaj je tvoj\ncilj v 90 dneh?',hint:'Jedilnik, kalorije in makrohranila se prilagodijo tvojemu cilju.',
+   opts:[{v:'masa',  l:'Čim več mišične mase'},
+         {v:'lean',  l:'Lean bulk — mišice brez maščobe'},
+         {v:'rekomp',l:'Body recomp — mišice in manj maščobe'}]},
+  {id:'treningi',tag:'Frekenca',q:'Kolikokrat na\nteden treniraš?',hint:'Vpliva na kalorično porabo in timing obrokov.',
+   opts:[{v:3,l:'3x na teden'},{v:4,l:'4x na teden'},{v:5,l:'5x ali več'}]},
+];
+
+function calcMacros(teza,visina,izkusnje,cilj,treningi){
+  const bmr=66+13.7*teza+5*visina-6.8*30;
+  const actF=treningi>=5?1.725:treningi===4?1.55:1.475;
+  const tdee=Math.round(bmr*actF);
+  let surplus=cilj==='masa'?400:cilj==='lean'?250:0;
+  if(izkusnje==='izkusen'&&cilj!=='rekomp') surplus=Math.round(tdee*0.10);
+  const kcal=tdee+surplus;
+  const prot=Math.round(teza*(izkusnje==='izkusen'?2.0:1.8));
+  const fat=Math.round(kcal*0.25/9);
+  const carb=Math.round((kcal-prot*4-fat*9)/4);
+  return{kcal,prot,carb,fat,tdee,surplus};
+}
+
+function buildWeek(m,cilj,treningi){
+  const k=m.kcal;
+  const trainDays=[1,3,5,0,2];
+  const proteins=['Piščančja prsa','Piščančja stegna','Losos (file)','Puran (mlet)','Tuna v vodi','Goveji mlet 93/7','Skuta (polnomastna)'];
+  const carbs=['Jasmine riž','Kvinoja','Sladki krompir','Polnozrnata testenina','Ovseni kosmiči','Rjavi riž','Krompir (kuhan)'];
+  const vegs=['Brokoli + oljčno olje','Špinača + česen','Rukola + paradižnik','Zelena solata + olive','Paprika + bučke','Brstični ohrovt','Kumare + avokado'];
+  const snacksM=['Banana + 2 žlici arašidovega masla','Rižev kruh + tuna (½ konzerve)','200g grškega jogurta + orehi','1 meric Whey + 1 jabolko','Hrustljavi arašidi 30g + pomaranča','Cottage cheese 150g + borovnice','2 trda jajca + polnozrnat kruh'];
+  const snacksL=['150g grški jogurt + borovnice','2 trda jajca + kumare','1 meric Whey + voda','Mandlji 20g + 1 jabolko','Skuta 150g + kivi','Rižev kruh + piščanec 50g','1 banana (samo pred treningom)'];
+  const snacks=cilj==='masa'?snacksM:snacksL;
+
+  return Array.from({length:7},(_,d)=>{
+    const isTd=trainDays.includes(d);
+    const bfK=Math.round(k*.25),luK=Math.round(k*.28),dnK=Math.round(k*.27);
+    const snK=Math.round(k*.10);
+    return{
+      day:d,trainDay:isTd,
+      meals:[
+        {type:'main',label:'Zajtrk',icon:'☀️',
+         items:[
+           {food:`3-4 jajca + ${d%3===0?'ovseni kosmiči 80g':d%3===1?'polnozrnat kruh 2 rezini':'riževi kosmiči 70g'}`,kcal:Math.round(bfK*.55)},
+           {food:`Grški jogurt 150g + ${d%2===0?'borovnice':'½ banane'}`,kcal:Math.round(bfK*.25)},
+           {food:'1 meric Whey proteina',kcal:Math.round(bfK*.20)},
+         ]},
+        {type:'snack1',label:`Dopoldanski prigrizek${isTd?' — pred treningom':''}`,icon:'🍎',
+         items:[{food:snacks[d],kcal:snK}]},
+        {type:'main',label:'Kosilo',icon:'🍽️',
+         items:[
+           {food:`${proteins[d]} — 200g`,kcal:Math.round(luK*.42)},
+           {food:`${carbs[d]} — 1.5 sk. kuhano`,kcal:Math.round(luK*.35)},
+           {food:vegs[d],kcal:Math.round(luK*.23)},
+         ]},
+        {type:'snack2',label:`Popoldanski prigrizek${isTd?' — po treningu':''}`,icon:'⚡',
+         items:[isTd
+           ?{food:'1.5 meric Whey + 50g dekstroze ali Gatorade',kcal:snK}
+           :{food:snacks[(d+3)%7],kcal:snK}]},
+        {type:'main',label:'Večerja',icon:'🌙',
+         items:[
+           {food:`${proteins[(d+3)%7]} — 180g`,kcal:Math.round(dnK*.40)},
+           {food:`${carbs[(d+2)%7]} — 1 sk. kuhano`,kcal:Math.round(dnK*.32)},
+           {food:vegs[(d+4)%7],kcal:Math.round(dnK*.28)},
+         ]},
+        {type:'snack3',label:'Pred spanjem',icon:'💤',
+         items:[{food:'Skuta 200g ali kazein shake + orehi 15g',kcal:Math.round(k*.07)}]},
+      ]
+    };
+  });
+}
+
+function getTip(izkusnje,cilj){
+  if(izkusnje==='izkusen'&&cilj==='lean') return{cls:'tip-red',text:'<strong>Pozor:</strong> Kot izkušen lifter je velik suficit pogosto vzrok za plateau. Tvoj protokol: 10% nad TDEE — nič več.'};
+  if(cilj==='rekomp') return{cls:'tip-gray',text:'<strong>Rekomp:</strong> Kalorije blizu TDEE, beljakovine 2g/kg, visoka intenzivnost. Napredek je počasnejši — ampak resen.'};
+  return{cls:'tip-green',text:`<strong>Cilj:</strong> ${Math.round(S.teza*.0025*10)/10}–${Math.round(S.teza*.005*10)/10} kg prirasta na teden. Hitreje = maščoba. Dodaj 150 kcal iz OH, če lestev stoji 2 tedna.`};
+}
+
+async function doEmail(email,ime,macros,week){
+  try{
+    const summary=week.slice(0,3).map((d,i)=>{
+      const ms=d.meals.filter(m=>m.type==='main').map(m=>m.items.map(it=>it.food).join(', ')).join(' | ');
+      return `${DAYS[i]}: ${ms}`;
+    }).join('\n');
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,
+        messages:[{role:'user',content:
+          `Napiši kratek personaliziran email v slovenščini za ${ime||'moškega'}.
+Zadeva: Tvoj 7-dnevni personaliziran jedilnik je tukaj 💪
+Makrohranila na dan: ${macros.kcal} kcal, ${macros.prot}g beljakovin, ${macros.carb}g OH, ${macros.fat}g maščob.
+Vzorec prvih 3 dni:\n${summary}
+Struktura: uvod (2 stavka, direkten), makrohranila, povzetek 7-dnevnega jedilnika, 1 konkreten nasvet, CTA za 90-dnevni program.
+Ton: direkten, trenerski, konkreten. Vrni SAMO besedilo emaila.`
+        }]})
+    });
+    const d=await r.json();
+    return d.content?.map(b=>b.text||'').join('')||'';
+  }catch(e){return '';}
+}
+
+function topBar(){
+  return `<div class="top-bar">
+    <div class="top-bar-logo">TrainSmart</div>
+    <div class="top-bar-tag">90-dnevni program</div>
+  </div>`;
+}
+
+function render(){
+  const root=document.getElementById('root');
+  const s=S;
+
+  // ── HERO ──────────────────────────────────────────────────────
+  if(s.step===0){
+    root.innerHTML=`
+      ${topBar()}
+      <div class="hero-head">
+        <div class="hero-eyebrow">Personaliziran jedilnik — brezplačno</div>
+        <div class="hero-h1">Kateri<br/>jedilnik<br/>ti bo<br/><span>deloval?</span></div>
+        <div class="hero-sub">6 vprašanj. AI izračuna tvoja makrohranila in sestavi<br/>celoten 7-dnevni jedilnik — pošljemo ti ga na email.</div>
+      </div>
+      <div class="hero-body">
+        <div class="check-row"><div class="check-sq"><svg width="10" height="8" fill="none" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="check-text">7 dni × 3 glavni obroki + 3 prigrizki vsak dan</div></div>
+        <div class="check-row"><div class="check-sq"><svg width="10" height="8" fill="none" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="check-text">Prilagojeno tvoji teži, cilju in frekvenci treningov</div></div>
+        <div class="check-row"><div class="check-sq"><svg width="10" height="8" fill="none" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="check-text">Personaliziran email z jedilnikom v 60 sekundah</div></div>
+        <br>
+        <button class="btn btn-primary" onclick="S.step=1;render()">Začni quiz →</button>
+      </div>`;
+    return;
+  }
+
+  // ── QUESTIONS 1-3 ─────────────────────────────────────────────
+  const qi=s.step-1;
+  if(qi<QS.length){
+    const q=QS[qi];
+    const prog=(s.step/TOTAL_Q)*100;
+    const nums=['A','B','C'];
+    root.innerHTML=`
+      ${topBar()}
+      <div class="prog-wrap">
+        <div class="prog-meta">
+          <span class="prog-step">Korak ${s.step} od ${TOTAL_Q}</span>
+          <span class="prog-pct">${Math.round(prog)}%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" style="width:${prog}%"></div></div>
+      </div>
+      <div class="step-wrap">
+        <div class="q-tag">${q.tag}</div>
+        <div class="q-title">${q.q.replace('\n','<br>')}</div>
+        <div class="q-hint">${q.hint}</div>
+        <div class="options">
+          ${q.opts.map((o,i)=>`
+          <button class="opt${s[q.id]==o.v?' sel':''}" onclick="S['${q.id}']='${o.v}';S.step=${s.step+1};render()">
+            <div class="opt-num">${nums[i]}</div>
+            <div class="opt-text">${o.l}</div>
+          </button>`).join('')}
+        </div>
+        ${s.step>1?`<span class="back" onclick="S.step=${s.step-1};render()">← Nazaj</span>`:''}
+      </div>`;
+    return;
+  }
+
+  // ── STEP 4: teža + višina ─────────────────────────────────────
+  if(s.step===4){
+    const prog=(4/TOTAL_Q)*100;
+    root.innerHTML=`
+      ${topBar()}
+      <div class="prog-wrap">
+        <div class="prog-meta"><span class="prog-step">Korak 4 od ${TOTAL_Q}</span><span class="prog-pct">${Math.round(prog)}%</span></div>
+        <div class="prog-track"><div class="prog-fill" style="width:${prog}%"></div></div>
+      </div>
+      <div class="step-wrap">
+        <div class="q-tag">Telesni podatki</div>
+        <div class="q-title">Tvoja teža<br/>in višina</div>
+        <div class="q-hint">Natančen izračun kaloričnih potreb zahteva oba podatka.</div>
+
+        <div class="slider-block">
+          <div class="slider-label">Telesna teža</div>
+          <div class="slider-val" id="tv">${s.teza} <em>kg</em></div>
+          <input type="range" min="60" max="130" step="1" value="${s.teza}"
+            oninput="S.teza=+this.value;document.getElementById('tv').innerHTML=this.value+' <em>kg</em>'">
+          <div class="slider-ends"><span>60 kg</span><span>130 kg</span></div>
+        </div>
+
+        <div class="slider-block">
+          <div class="slider-label">Višina</div>
+          <div class="slider-val" id="vv">${s.visina} <em>cm</em></div>
+          <input type="range" min="155" max="210" step="1" value="${s.visina}"
+            oninput="S.visina=+this.value;document.getElementById('vv').innerHTML=this.value+' <em>cm</em>'">
+          <div class="slider-ends"><span>155 cm</span><span>210 cm</span></div>
+        </div>
+
+        <button class="btn btn-primary" onclick="S.step=5;render()">Naprej →</button>
+        <span class="back" onclick="S.step=3;render()">← Nazaj</span>
+      </div>`;
+    return;
+  }
+
+  // ── STEP 5: email ─────────────────────────────────────────────
+  if(s.step===5){
+    const prog=(5/TOTAL_Q)*100;
+    root.innerHTML=`
+      ${topBar()}
+      <div class="prog-wrap">
+        <div class="prog-meta"><span class="prog-step">Korak 5 od ${TOTAL_Q}</span><span class="prog-pct">${Math.round(prog)}%</span></div>
+        <div class="prog-track"><div class="prog-fill" style="width:${prog}%"></div></div>
+      </div>
+      <div class="step-wrap">
+        <div class="q-tag">Zadnji korak</div>
+        <div class="q-title">Pošljemo<br/>ti jedilnik</div>
+        <div class="q-hint">Samo jedilnik. Brez spam. Odjaviš se kadar koli.</div>
+        <div class="field"><label>Ime (opcijsko)</label>
+          <input type="text" placeholder="Npr. Matej" id="f-ime" value="${s.ime}"></div>
+        <div class="field"><label>Email naslov *</label>
+          <input type="email" placeholder="tvoj@email.com" id="f-email" value="${s.email}"></div>
+        <button class="btn btn-primary" id="go-btn">Ustvari moj 7-dnevni jedilnik →</button>
+        <span class="back" onclick="S.step=4;render()">← Nazaj</span>
+      </div>`;
+
+    document.getElementById('go-btn').onclick=async()=>{
+      const em=document.getElementById('f-email').value.trim();
+      const im=document.getElementById('f-ime').value.trim();
+      if(!em||!em.includes('@')){
+        document.getElementById('f-email').style.borderColor='var(--red)';return;
+      }
+      S.email=em;S.ime=im;
+      const m=calcMacros(S.teza,S.visina,S.izkusnje,S.cilj,S.treningi);
+      const week=buildWeek(m,S.cilj,S.treningi);
+      S.jedilnik={macros:m,week};
+      S.step=6;S.sending=true;render();
+      const txt=await doEmail(em,im,m,week);
+      S.emailText=txt;S.sending=false;S.sent=true;render();
+    };
+    return;
+  }
+
+  // ── STEP 6: RESULT ────────────────────────────────────────────
+  if(s.step===6){
+    const{macros:m,week}=s.jedilnik;
+    const tip=getTip(s.izkusnje,s.cilj);
+    const ad=s.activeDay;
+    const day=week[ad];
+    const isSnack=t=>t.startsWith('snack');
+
+    root.innerHTML=`
+      ${topBar()}
+      <div class="step-wrap" style="padding-top:.9rem">
+
+        ${s.sending?`<div style="text-align:center"><div class="spinner"></div><p style="color:var(--gray);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase">Sestavljam tvoj email…</p></div>`:''}
+        ${s.sent?`<div class="sent-box"><div class="sent-icon">✅</div><h3>Na poti!</h3><p>Poslano na <strong>${s.email}</strong><br>Preveri Prejeto ali Spam.</p></div>`:''}
+
+        <div class="section-lbl">Dnevna makrohranila</div>
+        <div class="macro-strip">
+          <div class="macro-cell"><div class="macro-val">${m.kcal}</div><div class="macro-lbl">kcal</div></div>
+          <div class="macro-cell"><div class="macro-val">${m.prot}g</div><div class="macro-lbl">proteini</div></div>
+          <div class="macro-cell"><div class="macro-val">${m.carb}g</div><div class="macro-lbl">OH</div></div>
+          <div class="macro-cell"><div class="macro-val">${m.fat}g</div><div class="macro-lbl">maščobe</div></div>
+        </div>
+
+        <div class="${tip.cls} tip">${tip.text}</div>
+
+        <div class="section-lbl">Tedenski jedilnik</div>
+        <div class="accordion">
+          ${week.map((d,i)=>`
+          <div class="acc-item${i===ad?' open':''}">
+            <div class="acc-head" onclick="S.activeDay=${i===ad?-1:i};render()">
+              <div class="acc-left">
+                <span class="acc-daynum">Dan ${i+1}</span>
+                <span class="acc-dayname">${DAYS[i]}</span>
+                <span class="day-badge ${d.trainDay?'train':'rest'}" style="margin-left:.3rem;font-size:.6rem;padding:2px 6px">${d.trainDay?'🏋️ Trening':'💤 Počitek'}</span>
+              </div>
+              <span class="acc-arrow">${i===ad?'▲':'▼'}</span>
+            </div>
+            ${i===ad?`
+            <div class="acc-body">
+              ${d.meals.map(meal=>`
+              <div class="meal-block">
+                <div class="meal-block-head${isSnack(meal.type)?' snack-h':''}">
+                  <span class="meal-icon">${meal.icon}</span>
+                  <span class="meal-type-tag${isSnack(meal.type)?' is-snack':''}">${meal.label}</span>
+                </div>
+                <div class="meal-items">
+                  ${meal.items.map(it=>`
+                  <div class="meal-row">
+                    <div class="meal-food">${it.food}</div>
+                    <div class="meal-kcal">${it.kcal} kcal</div>
+                  </div>`).join('')}
+                </div>
+              </div>`).join('')}
+            </div>`:''}
+          </div>`).join('')}
+        </div>
+        </div>
+
+        <div class="tip-gray tip" style="font-size:12px">
+          <strong>Prilagajanje:</strong> Če lestev stoji 2 tedna, dodaj 150 kcal iz OH (riž, ovseni kosmiči). Porcije so orientacijske — tehtaj prvi teden.
+        </div>
+
+        <button class="btn btn-primary" style="margin-bottom:8px;font-size:1.1rem;padding:16px">Poglej 90-dnevni program &nbsp;&nbsp;→</button>
+        <button class="btn btn-dark" onclick="S={step:0,izkusnje:null,cilj:null,teza:80,visina:178,treningi:null,email:'',ime:'',jedilnik:null,sending:false,sent:false,activeDay:0};render()">
+          Začni znova
+        </button>
+      </div>`;
+  }
+}
+
+render();
+</script>
+</body>
+</html>
